@@ -1,0 +1,77 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id              Int       @id @default(autoincrement()) // -> Primary Key med auto optælling
+  firstname       String    @default("Ikke navngivet")
+  lastname        String    @default("Ikke navngivet")
+  address         String    @default("Ikke navngivet")
+  zipcode         Int       @default(0)
+  city            String    @default("Ikke navngivet")
+  email           String    @unique // -> Unik værdi
+  password        String
+  hasNewsletter   Boolean   @default(false) // -> Bool med default true
+  hasNotification Boolean   @default(false) // -> Bool med default true
+  refreshToken    String
+  isActive        Boolean   @default(true) // -> Bool med default true
+  products        Product[]
+  Comment         Comment[]
+
+  @@map("users") // -> Navn på tabel
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String
+  slug     String
+  products Product[]
+
+  @@map("categories")
+}
+
+model Comment {
+  id        Int    @id @default(autoincrement())
+  comment   String
+  userId    Int
+  productId Int
+
+  user    User    @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("comments")
+}
+
+model Newsletter {
+  id          Int     @id @default(autoincrement())
+  email       String  @unique
+}
+
+model Product {
+  id          Int     @id @default(autoincrement())
+  name        String
+  created_at  DateTime  @default(now())
+  image       String
+  description String  // -> Lang tekst
+  price       Decimal // -> Decimaltal til pris
+  slug        String
+  categoryId  Int
+  userId      Int
+
+  user     User      @relation(fields: [userId], references: [id])
+  category Category  @relation(fields: [categoryId], references: [id])
+  Comment  Comment[]
+
+  @@map("products")
+}
+
